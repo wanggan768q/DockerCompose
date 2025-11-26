@@ -1,0 +1,42 @@
+services:
+  ubuntu:
+    image: ubuntu:latest
+    container_name: TestGit
+    ports:
+      - "7000:22"
+    volumes:
+      - "E:\\Git:/data"
+      - "C:\\Users\\Ambition\\.ssh:/host_ssh"
+    environment:
+      - http_proxy=http://10.53.1.103:7890
+      - https_proxy=https://10.53.1.103:7890
+      - all_proxy=http://10.53.1.103:7890
+    command: >
+      bash -c "
+      export http_proxy=http://host.docker.internal:7890 &&
+      export https_proxy=http://host.docker.internal:7890 &&
+      export all_proxy=http://host.docker.internal:7890 &&
+      apt-get update &&
+      DEBIAN_FRONTEND=noninteractive apt-get install -y iputils-ping vim tzdata git curl netcat-openbsd &&
+      ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime &&
+      echo 'Asia/Shanghai' > /etc/timezone &&
+      echo 'set encoding=utf-8' > /root/.vimrc &&
+      echo 'set fileencoding=utf-8' >> /root/.vimrc &&
+      echo 'set fileencodings=utf-8,gbk,ucs-bom' >> /root/.vimrc &&
+      git config --global http.proxy socks5://host.docker.internal:7890 &&
+      git config --global https.proxy socks5://host.docker.internal:7890 &&
+      mkdir -p /root/.ssh &&
+      cp -r /host_ssh/* /root/.ssh/ 2>/dev/null || true &&
+      chmod 600 /root/.ssh/* 2>/dev/null || true &&
+      chmod 700 /root/.ssh 2>/dev/null || true &&
+      bash
+      "
+    network_mode: host
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    dns:
+      - 8.8.8.8
+      - 114.114.114.114
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
