@@ -11,6 +11,7 @@ services:
       - http_proxy=http://10.53.1.103:7890
       - https_proxy=https://10.53.1.103:7890
       - all_proxy=http://10.53.1.103:7890
+      - DEBIAN_FRONTEND=noninteractive
     command: >
       bash -c "
       export http_proxy=http://host.docker.internal:7890 &&
@@ -25,10 +26,19 @@ services:
       echo 'set fileencodings=utf-8,gbk,ucs-bom' >> /root/.vimrc &&
       git config --global http.proxy socks5://host.docker.internal:7890 &&
       git config --global https.proxy socks5://host.docker.internal:7890 &&
+      git config --global user.email "ambitiongxb@foxmail.com" &&
+      git config --global user.name "Ambition" &&
       mkdir -p /root/.ssh &&
       cp -r /host_ssh/* /root/.ssh/ 2>/dev/null || true &&
       chmod 600 /root/.ssh/* 2>/dev/null || true &&
       chmod 700 /root/.ssh 2>/dev/null || true &&
+      echo 'Host github.com' > /root/.ssh/config &&
+      echo '    HostName ssh.github.com' >> /root/.ssh/config &&
+      echo '    User git' >> /root/.ssh/config &&
+      echo '    Port 443' >> /root/.ssh/config &&
+      echo '    IdentityFile ~/.ssh/id_rsa' >> /root/.ssh/config &&
+      echo '    ProxyCommand nc -X 5 -x 10.53.1.103:7890 %h %p' >> /root/.ssh/config &&
+      chmod 600 /root/.ssh/config &&
       bash
       "
     network_mode: host
