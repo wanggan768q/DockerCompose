@@ -1,5 +1,6 @@
 services:
   ubuntu:
+    #ubuntu:24.04
     image: ubuntu:latest
     container_name: TestGit_01
     ports:

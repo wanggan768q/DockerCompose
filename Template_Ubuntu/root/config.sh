@@ -33,5 +33,7 @@ cp -fv /data/Template_Ubuntu/root/.ssh/config /root/.ssh/config
 chmod 600 /root/.ssh/* 2>/dev/null || true
 chmod 700 /root/.ssh 2>/dev/null || true
 
+cd /data/Git/DockerComposeGit
+git push
 echo "Configuration completed."
 bash
