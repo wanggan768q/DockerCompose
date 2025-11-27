@@ -1,45 +1,24 @@
 services:
   ubuntu:
     image: ubuntu:latest
-    container_name: TestGit
+    container_name: TestGit_01
     ports:
       - "7000:22"
     volumes:
-      - "E:\\Git:/data"
-      - "C:\\Users\\Ambition\\.ssh:/host_ssh"
+      - "${HOST_GIT_PATH}:${MOUNT_PATH}"
+      - ./Template_Ubuntu:/data/Template_Ubuntu
+      - "${HOST_SSH_PATH}:/data/host_ssh"
     environment:
-      - http_proxy=http://10.53.1.103:7890
-      - https_proxy=https://10.53.1.103:7890
-      - all_proxy=http://10.53.1.103:7890
+      - http_proxy=http://${VPN_IP}:${VPN_PORT}
+      - https_proxy=https://${VPN_IP}:${VPN_PORT}
+      - all_proxy=http://${VPN_IP}:${VPN_PORT}
+      - HOST_IP=${HOST_IP}
+      - VPN_PORT=${VPN_PORT}
       - DEBIAN_FRONTEND=noninteractive
     command: >
       bash -c "
-      export http_proxy=http://host.docker.internal:7890 &&
-      export https_proxy=http://host.docker.internal:7890 &&
-      export all_proxy=http://host.docker.internal:7890 &&
-      apt-get update &&
-      DEBIAN_FRONTEND=noninteractive apt-get install -y iputils-ping vim tzdata git curl netcat-openbsd &&
-      ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime &&
-      echo 'Asia/Shanghai' > /etc/timezone &&
-      echo 'set encoding=utf-8' > /root/.vimrc &&
-      echo 'set fileencoding=utf-8' >> /root/.vimrc &&
-      echo 'set fileencodings=utf-8,gbk,ucs-bom' >> /root/.vimrc &&
-      git config --global http.proxy socks5://host.docker.internal:7890 &&
-      git config --global https.proxy socks5://host.docker.internal:7890 &&
-      git config --global user.email "ambitiongxb@foxmail.com" &&
-      git config --global user.name "Ambition" &&
-      mkdir -p /root/.ssh &&
-      cp -r /host_ssh/* /root/.ssh/ 2>/dev/null || true &&
-      chmod 600 /root/.ssh/* 2>/dev/null || true &&
-      chmod 700 /root/.ssh 2>/dev/null || true &&
-      echo 'Host github.com' > /root/.ssh/config &&
-      echo '    HostName ssh.github.com' >> /root/.ssh/config &&
-      echo '    User git' >> /root/.ssh/config &&
-      echo '    Port 443' >> /root/.ssh/config &&
-      echo '    IdentityFile ~/.ssh/id_rsa' >> /root/.ssh/config &&
-      echo '    ProxyCommand nc -X 5 -x 10.53.1.103:7890 %h %p' >> /root/.ssh/config &&
-      chmod 600 /root/.ssh/config &&
-      bash
+      chmod +x /data/Template_Ubuntu/root/config.sh &&
+      /data/Template_Ubuntu/root/config.sh
       "
     network_mode: host
     extra_hosts:
