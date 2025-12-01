@@ -14,7 +14,7 @@ Components: main restricted universe multiverse
 Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg" > /etc/apt/sources.list.d/ubuntu.sources
 
 apt-get update
-DEBIAN_FRONTEND=noninteractive apt-get install -y iputils-ping vim tzdata git curl netcat-openbsd openssh-server
+DEBIAN_FRONTEND=noninteractive apt-get install -y iputils-ping vim tzdata git curl netcat-openbsd openssh-server dos2unix rsync
 
 ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 echo 'Asia/Shanghai' > /etc/timezone
@@ -23,17 +23,20 @@ git config --global http.proxy socks5://host.docker.internal:7890
 git config --global https.proxy socks5://host.docker.internal:7890
 git config --global user.email "test@test.com"
 git config --global user.name "Ambition"
+git config --global pull.rebase true
 
-mkdir -p /root/.ssh
+#mkdir -p /root/.ssh
 cp -r /data/host_ssh/* /root/.ssh/ 2>/dev/null || true
 # 复制 Template_Ubuntu 目录下的文件到对应位置
-#cp -rf /data/Template_Ubuntu/root/* /root/ 2>/dev/null || true
+rsync -av /data/Template_Ubuntu/root/ /root/
 # 1. 显式覆盖文件，不保留原目录结构
-cp -fv /data/Template_Ubuntu/root/.ssh/config /root/.ssh/config
+#cp -fv /data/Template_Ubuntu/root/.ssh/config /root/.ssh/config
+#dos2unix /root/.ssh/ssh-proxy-wrapper.sh
 chmod 600 /root/.ssh/* 2>/dev/null || true
 chmod 700 /root/.ssh 2>/dev/null || true
+chmod +x ~/.ssh/ssh-proxy-wrapper.sh
 
 cd /data/Git/DockerComposeGit
-git push
+git status
 echo "Configuration completed."
 bash
