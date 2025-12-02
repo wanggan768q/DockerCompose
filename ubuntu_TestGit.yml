@@ -1,13 +1,14 @@
 services:
   ubuntu:
-    #ubuntu:24.04
-    image: ubuntu:latest
+    build:
+      context: .
+      dockerfile: Dockerfile/Dockerfile_Ubuntu_Git
+    image: ubuntu:git
     container_name: TestGit_01
     ports:
       - "7000:22"
     volumes:
       - "${HOST_GIT_PATH}:${MOUNT_PATH}"
-      - ./Template_Ubuntu:/data/Template_Ubuntu
       - "${HOST_SSH_PATH}:/data/host_ssh"
     environment:
       - http_proxy=http://${VPN_IP}:${VPN_PORT}
@@ -15,11 +16,9 @@ services:
       - all_proxy=http://${VPN_IP}:${VPN_PORT}
       - HOST_IP=${HOST_IP}
       - VPN_PORT=${VPN_PORT}
-      - DEBIAN_FRONTEND=noninteractive
     command: >
       bash -c "
-      chmod +x /data/Template_Ubuntu/root/config.sh &&
-      /data/Template_Ubuntu/root/config.sh
+      ~/config.sh
       "
     network_mode: host
     extra_hosts:

@@ -1,0 +1,40 @@
+# 使用 Ubuntu 24.04 作为基础镜像
+FROM ubuntu:latest
+
+# 设置环境变量
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Shanghai
+
+RUN cp /etc/apt/sources.list.d/ubuntu.sources /etc/apt/sources.list.d/ubuntu.sources.bak && \
+    echo "Types: deb" > /etc/apt/sources.list.d/ubuntu.sources && \
+    echo "URIs: http://mirrors.tuna.tsinghua.edu.cn/ubuntu" >> /etc/apt/sources.list.d/ubuntu.sources && \
+    echo "Suites: noble noble-updates noble-backports noble-security" >> /etc/apt/sources.list.d/ubuntu.sources && \
+    echo "Components: main restricted universe multiverse" >> /etc/apt/sources.list.d/ubuntu.sources && \
+    echo "Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg" >> /etc/apt/sources.list.d/ubuntu.sources && \
+    apt-get update && \
+    apt-get install -y \
+    iputils-ping \
+    vim \
+    tzdata \
+    git \
+    curl \
+    netcat-openbsd \
+    openssh-server \
+    dos2unix \
+    rsync \
+    && rm -rf /var/lib/apt/lists/* && \
+    ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
+    echo 'Asia/Shanghai' > /etc/timezone
+
+# 创建 SSH 目录并设置权限
+RUN mkdir -p /root/.ssh && \
+    chmod 700 /root/.ssh
+
+# 复制配置文件到容器中
+COPY Template_Ubuntu/root/ /root/
+
+# 暴露 SSH 端口
+EXPOSE 22
+
+# 启动 SSH 服务并保持容器运行
+CMD ["/bin/bash", "-c", "ssh-keygen -A && service ssh start && bash"]
