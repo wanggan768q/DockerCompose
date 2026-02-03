@@ -18,7 +18,7 @@ services:
       - VPN_PORT=${VPN_PORT}
     command: >
       bash -c "
-      ~/config.sh
+      ~/config_git.sh && cd /data/Git/DockerComposeGit && git status && echo "Configuration completed."
       "
     network_mode: host
     extra_hosts:
